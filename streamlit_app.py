@@ -49,6 +49,29 @@ def get_vectorstore(text_chunks):
 
     return vectorstore
 
+#   ###############################################
+def handle_userinput(user_question):
+
+    response = st.session_state.conversation({'question': user_question})
+    # response = st.session_state.conversation({'summarization': user_question})
+    st.session_state.chat_history = response['chat_history']
+    
+    
+    # st.empty()
+    
+    for i, message in enumerate(st.session_state.chat_history):
+        if i % 2 == 0:
+            st.write(user_template.replace(
+                "{{MSG}}", message.content), unsafe_allow_html=True)
+    
+        else:
+            st.write(bot_template.replace(
+                "{{MSG}}", message.content), unsafe_allow_html=True)
+
+
+
+
+################################################################################
 
 st.set_page_config(page_title="MLP Chat with multiple PDFs",
                page_icon=":books:")
@@ -58,6 +81,50 @@ st.write('Hello world2', unsafe_allow_html=True)
 st.header("Mike's PDF Chat :books:")
 
 user_question = st.text_input("Ask a question about your documents:")
+if user_question:
+    handle_userinput(user_question)
+
+# st.write( user_template, unsafe_allow_html=True)
+# st.write(user_template.replace( "{{MSG}}", "Hello robot!"), unsafe_allow_html=True)
+# st.write(bot_template.replace( "{{MSG}}", "Hello human!"), unsafe_allow_html=True)
+
+
+with st.sidebar:
+
+    st.subheader("Your documents")
+    pdf_docs = st.file_uploader(
+        "Upload your PDFs here and click on 'Process'", accept_multiple_files=True)
+
+    # Upon button press
+    if st.button("Process these files"):
+        with st.spinner("Processing..."):
+
+            #################################################################
+            #  Track the overall time for file processing into Vectors
+            # #
+            from datetime import datetime
+            global_now = datetime.now()
+            global_current_time = global_now.strftime("%H:%M:%S")
+            st.write("Vectorizing Files - Current Time =", global_current_time)
+
+            # get pdf text
+            raw_text = get_pdf_text(pdf_docs)
+            #  st.write(raw_text)
+
+            # # get the text chunks
+            text_chunks = get_text_chunks(raw_text)
+            # st.write(text_chunks)
+
+            # # create vector store
+            vectorstore = get_vectorstore(text_chunks)
+
+            # # create conversation chain
+            st.session_state.conversation = get_conversation_chain(vectorstore)
+
+            # Mission Complete!
+            global_later = datetime.now()
+            st.write("Files Vectorized - Total EXECUTION Time =",
+                     (global_later - global_now), global_later)
 
 print( 'Hello World' )
 
