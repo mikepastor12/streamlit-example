@@ -1,7 +1,9 @@
 altair
 pandas
 streamlit
-PyPDF2
-langchain
-htmlTemplates
-InstructorEmbedding
+langchain==0.0.184
+PyPDF2==3.0.1
+python-dotenv==1.0.0
+InstructorEmbedding==1.0.1
+sentence-transformers==2.2.2
+huggingface-hub==0.14.1
