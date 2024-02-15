@@ -12,7 +12,52 @@ import streamlit as st
 
 from PyPDF2 import PdfReader
 from langchain.text_splitter import CharacterTextSplitter
+from langchain.embeddings import OpenAIEmbeddings, HuggingFaceInstructEmbeddings
+from langchain.vectorstores import FAISS
 
+
+def get_pdf_text(pdf_docs):
+    text = ""
+    for pdf in pdf_docs:
+        pdf_reader = PdfReader(pdf)
+        for page in pdf_reader.pages:
+            text += page.extract_text()
+    return text
+
+
+def get_vectorstore(text_chunks):
+    # embeddings = OpenAIEmbeddings()
+
+    #  pip install InstructorEmbedding
+    #  pip install sentence-transformers==2.2.2
+    embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-xl")
+
+    #  from InstructorEmbedding import INSTRUCTOR
+    # model = INSTRUCTOR('hkunlp/instructor-xl')
+    # sentence = "3D ActionSLAM: wearable person tracking in multi-floor environments"
+    # instruction = "Represent the Science title:"
+    # embeddings = model.encode([[instruction, sentence]])
+
+    # embeddings = model.encode(text_chunks)
+    print('have Embeddings:   ')
+
+    # text_chunks="this is a test"
+    #   FAISS,  Chroma and other vector databases
+    #
+    vectorstore = FAISS.from_texts(texts=text_chunks, embedding=embeddings)
+    print('FAISS succeeds:   ')
+
+    return vectorstore
+
+
+st.set_page_config(page_title="MLP Chat with multiple PDFs",
+               page_icon=":books:")
+
+st.write('Hello world2', unsafe_allow_html=True)
+
+st.header("Mike's PDF Chat :books:")
+
+user_question = st.text_input("Ask a question about your documents:")
 
 print( 'Hello World' )
 
