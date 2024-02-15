@@ -3,3 +3,5 @@ pandas
 streamlit
 PyPDF2
 langchain
+htmlTemplates
+InstructorEmbedding
